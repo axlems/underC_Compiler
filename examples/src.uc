@@ -1,4 +1,3 @@
-```c
 #include <tty>
 #include <sys>
 
@@ -123,32 +122,3 @@ V0_'main'(){
 I64_'addition'(I64_'a', I64_'b'){
     return(a + b);
 }
-```
-
-The type combinations demonstrated are:
-
-```text
-I64       → 64-bit integer
-@I64      → array of I64
-*I64      → pointer to I64
-*@I64     → pointer to array of I64
-@*I64     → array of pointers to I64
-RI64      → register holding an I64
-```
-
-And the key syntax relationship is:
-
-```text
-@ = array
-* = pointer
-R = register
-_ = function type
-```
-
-So the type system composes naturally:
-
-```text
-@I64     array of integers
-*@I64    pointer → array → integer
-@*I64    array → pointer → integer
-```
