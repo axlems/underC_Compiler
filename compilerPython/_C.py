@@ -1,8 +1,7 @@
 import re
 
 abcs = ""
-lexed = []
-ast = []
+
 
 dataTypes = {
     "I64", "I32", "I16", "I8",
@@ -90,6 +89,8 @@ while True:
         else:
                 print("error: use uc prefix to compile")
         # Lexer
+        lexed = []
+        ast = []
         if found:
                 cleaned = ""
                 in_string = False
@@ -122,7 +123,6 @@ while True:
                                 new_file += "}\n"
                         elif char == ">" and not in_string:
                                 new_file += ">\n"
-
                         else:
                                 new_file += char
                 lines = new_file.splitlines()
@@ -130,12 +130,20 @@ while True:
                         if "//" in line:
                                 line = line[:line.index("//")]
                         words = re.findall(
-                                r'"[^"]*"|#include|shift<|shift>|==|!=|<=|>=|<<=|>>=|\+=|-=|\*=|/=|&&|\|\||\+\+|--|[A-Za-z_][A-Za-z0-9_.]*|\d+|[@#;{}()[\]<>:=,+\-*/!]',
+                                r'"[^"]*"|'
+                                r'#include|'
+                                r'==|!=|<=|>=|<<=|>>=|\+=|-=|\*=|/=|&&|\|\||\+\+|--|'
+                                r'[@*]*[A-Za-z_][A-Za-z0-9_.]*|'
+                                r'\d+\.\d+|'
+                                r'\d+|'
+                                r'[@#;{}()[\]<>:=,+\-*/!&|^]',
                                 line
                         )
                         for word in words:
+                                if word in registerTypes:
+                                        lexed.append(f"registerType: '" + word + "'\n")
 
-                                if word in dataTypes:
+                                elif word in dataTypes:
                                         lexed.append(f"dataType: '" + word + "'\n")
 
                                 elif word in funcTypes:
@@ -147,6 +155,11 @@ while True:
                                 elif word in keywords:
                                         lexed.append(f"keyword: '" + word + "'\n")
 
+                                elif re.fullmatch(r"\d+", word):
+                                        lexed.append(f"integer: '{word}'\n")
+
+                                elif re.fullmatch(r"\d+\.\d+", word):
+                                        lexed.append(f"float: '{word}'\n")
                                 else:
                                         lexed.append(f"identifier: '" + word + "'\n")
                 lexed = "".join(lexed)
@@ -154,4 +167,4 @@ while True:
                 #parser
                 ast = "".join(ast)
 
-                print(ast)
+                print(ast
