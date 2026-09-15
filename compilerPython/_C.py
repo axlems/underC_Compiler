@@ -138,33 +138,40 @@ while True:
                                 r'\d+|'
                                 r'[@#;{}()[\]<>:=,+\-*/!&|^]',
                                 line
-                        )
+                                )
                         for word in words:
-                                if word in registerTypes:
-                                        lexed.append(f"registerType: '" + word + "'\n")
+                            if word in registerTypes:
+                                lexed.append(f"registerType: '{word}'\n")
 
-                                elif word in dataTypes:
-                                        lexed.append(f"dataType: '" + word + "'\n")
+                            elif word in dataTypes:
+                                lexed.append(f"dataType: '{word}'\n")
 
-                                elif word in funcTypes:
-                                        lexed.append(f"functype: '" + word + "'\n")
+                            elif word in funcTypes:
+                                lexed.append(f"functype: '{word}'\n")
 
-                                elif word in symbols:
-                                        lexed.append(f"symbol: '" + word + "'\n")
+                            elif word in symbols:
+                                lexed.append(f"symbol: '{word}'\n")
 
-                                elif word in keywords:
-                                        lexed.append(f"keyword: '" + word + "'\n")
+                            elif word in keywords:
+                                lexed.append(f"keyword: '{word}'\n")
 
-                                elif re.fullmatch(r"\d+", word):
-                                        lexed.append(f"integer: '{word}'\n")
+                            elif re.fullmatch(r"\d+\.\d+", word):
+                                lexed.append(f"float: '{word}'\n")
 
-                                elif re.fullmatch(r"\d+\.\d+", word):
-                                        lexed.append(f"float: '{word}'\n")
-                                else:
-                                        lexed.append(f"identifier: '" + word + "'\n")
+                            elif re.fullmatch(r"\d+", word):
+                                lexed.append(f"integer: '{word}'\n")
+
+                            elif re.fullmatch(r'"[^"]*"', word):
+                                lexed.append(f"string: {word}\n")
+
+                            elif re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.]*", word):
+                                lexed.append(f"identifier: '{word}'\n")
+
+                            else:
+                                print(f"error: unidentified or malformed token: '{word}'")
                 lexed = "".join(lexed)
                 print(lexed)
                 #parser
                 ast = "".join(ast)
 
-                print(ast
+                print(ast)
