@@ -6,30 +6,28 @@ dataTypes = {
 	'U64', 'U32', 'U16', 'U8', 
 	'F64', 'F32', 'F16', 'F8', 
 	'C64', 'C32', 'C16', 'C8',
+	'$C8',
 	'B1',
 	#array
 	'@I64', '@I32', '@I16', '@I8', 
 	'@U64', '@U32', '@U16', '@U8', 
 	'@F64', '@F32', '@F16', '@F8',
 	'@C64', '@C32', '@C16', '@C8',
+	'@$C8',
 	'@B1',
 	#pointers
 	'*I64', '*I32', '*I16', '*I8', 
 	'*U64', '*U32', '*U16', '*U8', 
 	'*F64', '*F32', '*F16', '*F8',
 	'*C64', '*C32', '*C16', '*C8',
+	'*$C8',
 	'*B1',
-	#pointer to an array
-	'*@I64', '*@I32', '*@I16', '*@I8', 
-	'*@U64', '*@U32', '*@U16', '*@U8', 
-	'*@F64', '*@F32', '*@F16', '*@F8',
-	'*@C64', '*@C32', '*@C16', '*@C8',
-	'*@B1',
 	#array of pointers
 	'@*I64', '@*I32', '@*I16', '@*I8', 
 	'@*U64', '@*U32', '@*U16', '@*U8', 
 	'@*F64', '@*F32', '@*F16', '@*F8',
 	'@*C64', '@*C32', '@*C16', '@*C8',
+	'@*$C8',
 	'@*B1'
 }
 #add shit 
@@ -126,16 +124,17 @@ while True:
 
 			# regex i tottaly didnt google
 			words = re.findall(
-				r'"[^"]*"|'
-				r'#include|'
-				r'(?:[@*]+)?(?:I64|C8|B1|V0)[_]?|' # Binds prefixes to data types only
-				r'==|!=|<=|>=|<<=|>>=|\+=|-=|\*=|/=|%=|&=|\|=|\^=|&&|\|\||\+\+|--|'
-				r'[A-Za-z_][A-Za-z0-9_.]*|'
-				r'\d+\.\d+|'
-				r'\d+|'
-				r'[@;{}()[\]<>:=,+\-*/!&|^~?_#]', # Standalone symbol fallback
-				line
-			)
+                r'"[^"]*"|'                       # Strings
+                r'#include|'                      # Include keyword
+                r'R\.[@*]*[A-Z0-9$]+(?:_)?|'       # Register types (e.g. R.I64, R.@*U32)
+                r'[@*]*[A-Z0-9$]+(?:_)?|'         # Data types and Function types 
+                r'==|!=|<=|>=|<<=|>>=|\+=|-=|\*=|/=|%=|&=|\|=|\^=|&&|\|\||\+\+|--|' # Multi-char operators
+                r'[A-Za-z_][A-Za-z0-9_.]*|'        # Identifiers
+                r'\d+\.\d+|'                      # Floats
+                r'\d+|'                           # Integers
+                r'[@;{}()[\]<>:=,+\-*/!&|^~?_#]', # Single fallback symbols
+                line
+            )
 
 
 			for word in words:
@@ -162,7 +161,67 @@ while True:
 					break
 		for token in lexed:
 			print(token)
-		# Parser 
+
+        # Parser
+		ast = []
+
+		for index, token in enumerate(lexed):
+
+			if token.startswith("functype"):
+				func_type = token.replace("functype,", "").replace("_", "")
+				name = lexed[index + 1]
+
+				for prefix in ("keyword,", "identifier,"):
+					name = name.replace(prefix, "")
+
+				ast.append(
+					f"function:\n"
+					f"\tname: {name}\n"
+					f"\ttype: {func_type}\n"
+				)
+
+			elif token.startswith("dataType"):
+				data_type = token.replace("dataType,", "")
+
+				if index + 4 < len(lexed):
+					name = lexed[index + 2].replace("identifier,", "")
+					value = ""
+
+					if lexed[index + 4] == "symbol, ;":
+						value = ""
+
+					elif lexed[index + 4] == "symbol, =":
+						if index + 5 < len(lexed):
+							value = lexed[index + 5]
+
+							for prefix in ("string, ", "integer, ", "float, "):
+								value = value.replace(prefix, "")
+
+					ast.append(
+						f"\tdecl:\n"
+						f"\t\tdatType: {data_type}\n"
+						f"\t\tname: {name}\n"
+						f"\t\tvalue: {value}\n"
+					)
+
+			elif token == "symbol, (":
+				if index + 4 < len(lexed):
+					name = lexed[index + 1]
+
+					if name.startswith("identifier,"):
+						name = name.replace("identifier,", "")
+
+						if lexed[index + 2] == "symbol, )" and lexed[index + 3] == "symbol, =":
+							value = lexed[index + 4]
+
+							for prefix in ("string, ", "integer, ", "float, "):
+								value = value.replace(prefix, "")
+
+							ast.append(
+								f"\tassign:\n"
+								f"\t\tname: {name}\n"
+								f"\t\tvalue: {value}\n"
+							)
 
 		ast_str = "".join(ast)
 		print(ast_str)
