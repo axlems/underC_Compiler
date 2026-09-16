@@ -1,5 +1,5 @@
 import re
-
+#stuff & things
 dataTypes = {  
 	#plain
 	'I64', 'I32', 'I16', 'I8', 
@@ -32,8 +32,8 @@ dataTypes = {
 	'@*C64', '@*C32', '@*C16', '@*C8',
 	'@*B1'
 }
-
-registerTypes = { 'R' + dataType for dataType in dataTypes }
+#add shit 
+registerTypes = { 'R.' + dataType for dataType in dataTypes }
 funcTypes = { dataType + '_' for dataType in dataTypes }
 funcTypes.add('V0_')
 
@@ -75,10 +75,11 @@ keywords = {
 	'for',
 	'break',
 	'continue',
-	'switch',
-	'case',
-	'default'
+	'struct',
+	'main',
+	'dat'
 }
+#EASTER EGG(language used to be called abacus)
 abcs = ""
 
 while True:
@@ -106,7 +107,6 @@ while True:
 	tokens = []
 	
 	if found:
-		# Pre-process line endings safely without losing spacing logic
 		new_file = ""
 		in_string = False
 		for char in file:
@@ -124,17 +124,20 @@ while True:
 			if '//' in line:
 				line = line[:line.index('//')]
 
-			# Combined regex string literal flags and corrected regex pattern order
+			# regex i tottaly didnt google
 			words = re.findall(
-				r'"[^"]*"|'                       # String literals
-				r'#include|'                       # Preprocessor
-				r'==|!=|<=|>=|<<=|>>=|\+=|-=|\*=|/=|%=|&=|\|=|\^=|&&|\|\||\+\+|--|' # Multi-character operators
-				r'[@*]*[A-Za-z_][A-Za-z0-9_.]*|'   # Identifiers / Types
-				r'\d+\.\d+|'                       # Floats
-				r'\d+|'                            # Integers
-				r'[@#;{}()[\]<>:=,+\-*/!&|^]',    # Single character symbols
+				r'"[^"]*"|'
+				r'#include|'
+				r'(?:[@*]+)?(?:I64|C8|B1|V0)[_]?|' # Binds prefixes to data types only
+				r'==|!=|<=|>=|<<=|>>=|\+=|-=|\*=|/=|%=|&=|\|=|\^=|&&|\|\||\+\+|--|'
+				r'[A-Za-z_][A-Za-z0-9_.]*|'
+				r'\d+\.\d+|'
+				r'\d+|'
+				r'[@;{}()[\]<>:=,+\-*/!&|^~?_#]', # Standalone symbol fallback
 				line
 			)
+
+
 			for word in words:
 				if word in registerTypes:
 					lexed.append(f"registerType, {word}")
@@ -159,6 +162,7 @@ while True:
 					break
 		for token in lexed:
 			print(token)
-		# Parser stub
+		# Parser 
+
 		ast_str = "".join(ast)
 		print(ast_str)
