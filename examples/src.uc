@@ -1,7 +1,7 @@
 #include <tty>
 #include <sys>
 
-V0_'data'(){
+V0_'dat'(){
 	I64(x);
 	I64(y);
 
@@ -26,7 +26,7 @@ V0_'main'(){
 	(y) = 20;
 
 	// Register interaction
-	RI64(rax) = 10;
+	R.I64(rax) = 10;
 	(x) = (rax);
 
 	(rax) += 5;
@@ -41,23 +41,23 @@ V0_'main'(){
 	(numbers[1]) += 5;
 
 	// Pointer
-	*I64(ptr) = &(x);
+	*I64(ptr) = (&x);
 
-	(y) = *(ptr);
+	(y) = (*ptr);
 
 	// Pointer to an array
 	*@I64(arrayPtr) = &(numbers);
 
-	(y) = *(arrayPtr[0]);
+	(y) = (*arrayPtr[0]);
 
 	// Array of pointers
 	@*I64(ptrArray);
 
-	(ptrArray[0]) = &(x);
-	(ptrArray[1]) = &(y);
+	(ptrArray[0]) = (&x);
+	(ptrArray[1]) = (&y);
 
-	(x) = *(ptrArray[0]);
-	(y) = *(ptrArray[1]);
+	(x) = (*ptrArray[0]);
+	(y) = (*ptrArray[1]);
 
 	// Character array acting as a string
 	@C8(message) = "Hello, _C!";
