@@ -9,7 +9,7 @@ V0_'dat'(){
 	@C8(message);
 
 	*I64(ptr);
-	*@I64(arrayPtr);
+	*I64(arrayPtr);
 	@*I64(ptrArray);
 
 	B1(flag);
